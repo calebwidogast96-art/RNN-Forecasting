@@ -20,7 +20,6 @@ Contains hourly traffic data from San Francisco freeway car lanes:
 
 Contains electricity consumption data from individual clients:
 
-* **Short-term forecasting:** 370 clients
 * **Long-term forecasting:** 321 clients
 * **Collection period:** From 2011-01-01
 * **Sampling interval:** 15 minutes

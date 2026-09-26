@@ -68,7 +68,14 @@ def train_model(X_tr, y_tr, X_val, y_val, layers):
 def evaulate_model(X_test, y_test, model):
 	return model.evaluate(X_test, y_test) # test_loss, test_mae
 
+def run_pipeline(filename, target, features, lookback, layers):
+	X_train, X_val, X_test, y_train, y_val, y_test = process_data(filename, target, features, lookback)
 
+	model = train_model(X_train, y_train, X_val, y_val, layers)
+
+	test_loss, test_mae = evaulate_model(X_test, y_test, model)
+
+	return test_loss, test_mae
 
 def create_sequences(X, y, lookback):
     X_seq = []
