@@ -1,12 +1,13 @@
 import tensorflow as tf
 
 class JordanRNN(tf.keras.layers.Layer):
-    def __init__(self, units, output_units, activation="tanh"):
+    def __init__(self, units, output_units, activation="tanh", return_sequences=False):
         super().__init__()
 
         self.units = units
         self.output_units = output_units
         self.activation = tf.keras.activations.get(activation)
+        self.return_sequences = return_sequences
 
     def build(self, input_shape):
         input_dim = input_shape[-1]
@@ -73,16 +74,21 @@ class JordanRNN(tf.keras.layers.Layer):
 
             y_prev = y
 
-        # (time, batch, output) -> (batch, time, output)
-        return tf.transpose(outputs.stack(), [1, 0, 2])
+        outputs = tf.transpose(outputs.stack(), [1, 0, 2])
+
+        if self.return_sequences:
+            return outputs
+        else:
+            return outputs[:, -1, :]
 
 class MultiRecurrentRNN(tf.keras.layers.Layer):
-    def __init__(self, units, delays=(1,), activation="tanh"):
+    def __init__(self, units, delays=(1,), activation="tanh", return_sequences=False):
         super().__init__()
 
         self.units = units
         self.delays = delays
         self.activation = tf.keras.activations.get(activation)
+        self.return_sequences = return_sequences
 
     def build(self, input_shape):
         input_dim = input_shape[-1]
@@ -154,4 +160,9 @@ class MultiRecurrentRNN(tf.keras.layers.Layer):
             states = states.write(max_delay + t, h)
             outputs = outputs.write(t, h)
 
-        return tf.transpose(outputs.stack(), [1, 0, 2])
+        outputs = tf.transpose(outputs.stack(), [1, 0, 2])
+
+        if self.return_sequences:
+            return outputs
+        else:
+            return outputs[:, -1, :]

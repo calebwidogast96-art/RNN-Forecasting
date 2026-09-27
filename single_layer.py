@@ -1,11 +1,7 @@
-import os
-import json
-
 import tensorflow as tf
 from custom_layers import JordanRNN, MultiRecurrentRNN
-from run_rnn import run_pipeline
 
-def make_rnn_layers(lookback, input_size):
+def make_rnn_layers(lookback, input_size)->dict:
     rnn_layers = {
 
     # =========================
@@ -214,20 +210,3 @@ def make_rnn_layers(lookback, input_size):
     }
 
     return rnn_layers
-
-
-results = []
-TARGET = "OT"
-FEATURES = [str(i) for i in range(430)]
-for i in range(len(layers)):
-    test_loss, test_mae = run_pipeline("data/traffic.csv", "OT", FEATURES, 24, layers[i])
-    results.append({"index":i, "test_loss":test_loss, "test_mae":test_mae})
-
-print(f"Results:{results}")
-
-with open("traffic.json", "w") as f:
-    json.dump(results, f, indent=4)
-
-# os.dup2(stderr, 2)
-# os.close(devnull)
-# os.close(stderr)

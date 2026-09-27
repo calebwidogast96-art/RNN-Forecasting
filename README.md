@@ -12,7 +12,7 @@ at https://www.kaggle.com/datasets/giochelavaipiatti/time-series-forecasts-popul
 
 Contains hourly traffic data from San Francisco freeway car lanes:
 
-* **Long-term forecasting:** 429 car lanes
+* **Long-term forecasting:** 430 car lanes
 * **Collection period:** From 2015-01-01
 * **Sampling interval:** 1 hour
 
