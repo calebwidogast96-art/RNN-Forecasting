@@ -46,7 +46,7 @@ class JordanRNN(tf.keras.layers.Layer):
         # inputs: (batch, time, features)
 
         batch_size = tf.shape(inputs)[0]
-        time_steps = tf.shape(inputs)[1]
+        time_steps = inputs.shape[1]
 
         # Previous output y_{t-1}
         y_prev = tf.zeros(
@@ -59,7 +59,7 @@ class JordanRNN(tf.keras.layers.Layer):
             size=time_steps
         )
 
-        for t in tf.range(time_steps):
+        for t in range(time_steps):
             x_t = inputs[:, t, :]
 
             h = self.activation(
@@ -118,7 +118,7 @@ class MultiRecurrentRNN(tf.keras.layers.Layer):
 
     def call(self, inputs):
         batch_size = tf.shape(inputs)[0]
-        time_steps = tf.shape(inputs)[1]
+        time_steps = inputs.shape[1]
 
         max_delay = max(self.delays)
 
@@ -129,7 +129,7 @@ class MultiRecurrentRNN(tf.keras.layers.Layer):
         )
 
         # Initialize history with zeros
-        for i in tf.range(max_delay):
+        for i in range(max_delay):
             states = states.write(
                 i,
                 tf.zeros(
@@ -143,7 +143,7 @@ class MultiRecurrentRNN(tf.keras.layers.Layer):
             size=time_steps
         )
 
-        for t in tf.range(time_steps):
+        for t in range(time_steps):
             x_t = inputs[:, t, :]
 
             h = tf.matmul(x_t, self.Wx) + self.b

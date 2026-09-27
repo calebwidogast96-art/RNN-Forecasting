@@ -42,10 +42,9 @@ Contains 21 meteorological indicators, including humidity and air temperature, c
 
 ### [ETT](#ref-5)
 
-The **Electricity Transformer Temperature (ETT)** dataset is collected from two different electric transformers, with two temporal resolutions:
+The **Electricity Transformer Temperature (ETT)** dataset is collected from electric transformers, with temporal resolution:
 
-* **ETTh:** 1 hour
-* **ETTm:** 15 minutes
+* **ETTh1:** 1 hour
 
 ## References
 

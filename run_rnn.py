@@ -59,7 +59,7 @@ def train_model(X_tr, y_tr, X_val, y_val, layers):
 		epochs=50, batch_size=32,
 
 		callbacks=[tf.keras.callbacks.EarlyStopping(
-					monitor="val_loss", patience=10,
+					monitor="val_loss", patience=5,
 					restore_best_weights=True)]
 		)
 

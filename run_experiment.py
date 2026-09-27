@@ -11,35 +11,57 @@ stacked_rnns = {"gru": make_gru_stacked,
 
 def run_experiment(filename, target, features, lb_min, lb_max, lb_step)->dict: 
     input_size = len(features)
-    results = {}
+    results = []
+
+    json_file = filename.replace(".csv", "_single.json")
+    if Path(json_file).exists():
+        with open(json_file, "r") as f:
+            results = json.load(f)
+
+    count = len(results)
     for lb in range(lb_min, lb_max, lb_step):
         layers = make_rnn_layers(lb, input_size)
 
         for model, layers in layers.items():
+            count -= 1
+            if count >= 0: continue
+
+            print(f"\n\nRunning {model} with {lb} lookback...")
             test_loss, test_mae = run_pipeline(f"data/{filename}", target, features, lb, layers)
+            
             results.append({"model":model, "lookback":lb, "test_loss":test_loss, "test_mae":test_mae})
 
-    print(f"Results:{results}")
+            print(f"\nResults: model:{model}, lookback:{lb}, test_loss:{test_loss}, test_mae:{test_mae}")
 
-    with open({filename.replace(".csv", "_single.json")}, "w") as f:
-        json.dump(results, f, indent=4)
+            with open(json_file, "w") as f:
+                json.dump(results, f, indent=4)
 
     return min(results, key=lambda d: d["test_mae"])
 
 def run_stacked_experiment(filename, target, features, lb, type, units)->dict: 
     input_size = len(features)
-    results = {}
+    results = []
+
+    json_file = filename.replace(".csv", "_stacked.json")
+    if Path(json_file).exists():
+        with open(json_file, "r") as f:
+            results = json.load(f)
 
     layers = stacked_rnns[type](lb, input_size, units)
 
+    count = len(results)
     for model, layers in layers.items():
+        count -= 1
+        if count >= 0: continue
+
+        print(f"\n\nRunning {model}...")
         test_loss, test_mae = run_pipeline(f"data/{filename}", target, features, lb, layers)
         results.append({"model":model, "lookback":lb, "units":units, "test_loss":test_loss, "test_mae":test_mae})
 
-    print(f"Stacked results:{results}")
+        print(f"\nStacked Results: model:{model}, lookback:{lb}, units:{units}, test_loss:{test_loss}, test_mae:{test_mae}")
 
-    with open({filename.replace(".csv", "_stacked.json")}, "w") as f:
-        json.dump(results, f, indent=4)
+        with open(filename, "w") as f:
+            json.dump(results, f, indent=4)
 
     return min(results, key=lambda d: d["test_mae"])
 
@@ -48,49 +70,56 @@ def main():
         print("Usage: python program.py <arg>")
         sys.exit(1)
 
-    filename = sys.argv[1]
+    filename = str(sys.argv[1])
 
     if filename == "covid.csv":
-        pass
+        target = "55"
+        features = [str(i) for i in range(1, 55)]
+        lb_min = 1
+        lb_step = 1
+        lb_max = 21 + lb_step
     elif filename == "electricity.csv":
-        pass
-    elif filename == "ETTm1.csv":
-        pass
+        target = "OT"
+        features = [str(i) for i in range(320)]
+        lb_min = 6
+        lb_step = 6
+        lb_max = 48 + lb_step
+    elif filename == "ETTh1.csv":
+        target = "OT"
+        features = ["HUFL", "HULL", "MUFL", "MULL", "LUFL", "LULL"]
+        lb_min = 6
+        lb_step = 6
+        lb_max = 60 + lb_step
     elif filename == "traffic.csv":
         target = "OT"
-        features = [str(i) for i in range(431)]
+        features = [str(i) for i in range(430)]
         lb_min = 12
         lb_step = 12
-        lb_max = 168 + lb_step
+        lb_max = 48 + lb_step
     elif filename == "weather.csv":
-        pass
+        target = "OT"
+        features = ["p (mbar)", "T (degC)", "Tpot (K)", "Tdew (degC)",
+            "rh (%)", "VPmax (mbar)", "VPact (mbar)", "VPdef (mbar)",
+            "sh (g/kg)", "H2OC (mmol/mol)", "rho (g/m**3)","wv (m/s)",
+            "max. wv (m/s)", "wd (deg)", "rain (mm)", "raining (s)",
+            "SWDR (W/m�)", "PAR (�mol/m�/s)", "max. PAR (�mol/m�/s)",
+            "Tlog (degC)"]
+       
+        lb_min = 12 # 2 hour
+        lb_step = 12
+        lb_max = 36 + lb_step
     else: 
         print("Unsuported file")
         return
 
-    if not Path(filename).exists():
+    if not Path(f"data/{filename}").exists():
         print("File doesn't exist")
         return
 
     best_single = run_experiment(filename, target, features,
                           lb_min, lb_max, lb_step)
 
-    info = best_single["model"].split("_")
-    best_type = info[0]
-
-    if best_type in ["jordan", "multi"]:
-        print(f"Best RNN: {best_type}")
-        return
-    else:
-        print(f"Best single RNN: {best_type}, investigating stacked...")
-
-    best_lb = best_single["lookback"]
-    best_units = int(info[-1])
-
-    best_stacked = run_stacked_experiment(filename, target, features,
-                                          best_lb, best_type, best_units)
-
-    print(f"Best stacked RNN: {best_stacked}")
+    print(best_single)
 
 if "__main__" == __name__:
     main()
