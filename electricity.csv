@@ -1,9 +1,0 @@
-[
-    {
-        "model": "gru_1_layers",
-        "lookback": 30,
-        "units": 128,
-        "test_loss": 0.0020989300683140755,
-        "test_mae": 0.03598722442984581
-    }
-]

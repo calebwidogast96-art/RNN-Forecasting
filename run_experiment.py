@@ -1,5 +1,4 @@
 from single_layer import make_rnn_layers
-from stacked_layers import make_gru_stacked, make_lstm_stacked, make_simple_rnn_stacked
 from run_rnn import run_pipeline
 import json
 import sys
@@ -35,33 +34,6 @@ def run_experiment(filename, target, features, lb_min, lb_max, lb_step)->dict:
 
             with open(json_file, "w") as f:
                 json.dump(results, f, indent=4)
-
-    return min(results, key=lambda d: d["test_mae"])
-
-def run_stacked_experiment(filename, target, features, lb, type, units)->dict: 
-    input_size = len(features)
-    results = []
-
-    json_file = filename.replace(".csv", "_stacked.json")
-    if Path(json_file).exists():
-        with open(json_file, "r") as f:
-            results = json.load(f)
-
-    layers = stacked_rnns[type](lb, input_size, units)
-
-    count = len(results)
-    for model, layers in layers.items():
-        count -= 1
-        if count >= 0: continue
-
-        print(f"\n\nRunning {model}...")
-        test_loss, test_mae = run_pipeline(f"data/{filename}", target, features, lb, layers)
-        results.append({"model":model, "lookback":lb, "units":units, "test_loss":test_loss, "test_mae":test_mae})
-
-        print(f"\nStacked Results: model:{model}, lookback:{lb}, units:{units}, test_loss:{test_loss}, test_mae:{test_mae}")
-
-        with open(filename, "w") as f:
-            json.dump(results, f, indent=4)
 
     return min(results, key=lambda d: d["test_mae"])
 
